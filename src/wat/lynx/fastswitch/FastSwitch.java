@@ -1,4 +1,7 @@
-
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package wat.lynx.FastSwitch;
 
 import java.util.logging.Logger;
@@ -12,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
- * @author Lynx
+ * @author Emil
  */
 public class FastSwitch extends JavaPlugin {
 
@@ -45,7 +48,8 @@ public class FastSwitch extends JavaPlugin {
             if (player.isOp() || player.hasPermission("fastswitch.creative.other")) {
                 if (isOnline(sender, args)) {
                     dude.setGameMode(GameMode.CREATIVE);
-                    dude.sendMessage(namn + ChatColor.DARK_RED + player.getDisplayName() + ChatColor.GRAY + " changed your game mode  to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + "!");
+                    sender.sendMessage(namn + "You changed " + ChatColor.DARK_RED + dude.getDisplayName() + ChatColor.GRAY + "'s game mode to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + "!");
+                    dude.sendMessage(namn + ChatColor.DARK_RED + player.getDisplayName() + ChatColor.GRAY + " changed your game mode to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + "!");
                     log.info("[FastSwitch] " + player.getDisplayName() + " changed " + dude.getDisplayName() + "'s game mode to Creative!");
                 }
             } else {
@@ -56,6 +60,12 @@ public class FastSwitch extends JavaPlugin {
 
     public boolean isOnline(CommandSender sender, String[] args) {
         Player list[] = sender.getServer().getOnlinePlayers();
+        found = false;
+        if ("t".equals(args[0])) {
+            x = 1;
+        } else {
+            x = 0;
+        }
         for (Player checkname : list) {
             if (checkname.getDisplayName().equalsIgnoreCase(args[x])) {
                 dude = checkname;
@@ -65,7 +75,7 @@ public class FastSwitch extends JavaPlugin {
         if (found) {
             return true;
         } else {
-            sender.sendMessage(namn + "Unable to find player " + ChatColor.DARK_RED + args[0] + ChatColor.GRAY + "!");
+            sender.sendMessage(namn + "Unable to find player " + ChatColor.DARK_RED + args[x] + ChatColor.GRAY + "!");
             return false;
         }
     }
@@ -88,6 +98,7 @@ public class FastSwitch extends JavaPlugin {
             if (player.isOp() || player.hasPermission("fastswitch.survival.other")) {
                 if (isOnline(sender, args)) {
                     dude.setGameMode(GameMode.SURVIVAL);
+                    sender.sendMessage(namn + "You changed " + ChatColor.DARK_RED + dude.getDisplayName() + ChatColor.GRAY + "'s game mode to " + ChatColor.GREEN + "Survival" + ChatColor.GRAY + "!");
                     dude.sendMessage(namn + ChatColor.DARK_RED + player.getDisplayName() + ChatColor.GRAY + " changed your game mode to " + ChatColor.GREEN + "Survival" + ChatColor.GRAY + "!");
                     log.info("[FastSwitch] " + player.getDisplayName() + " changed " + dude.getDisplayName() + "'s game mode to Survival!");
                 }
@@ -134,31 +145,51 @@ public class FastSwitch extends JavaPlugin {
             log.info("[FastSwitch] " + player.getDisplayName() + " toggled game mode to Survival!");
         }
     }
-    public void toggleother(CommandSender sender, String[] args){
-        
+
+    public void toggleother(CommandSender sender, String[] args) {
+        Player player = (Player) sender;
+        if (dude.getGameMode().toString().equals("SURVIVAL")) {
+            dude.setGameMode(GameMode.CREATIVE);
+            sender.sendMessage(namn + "You changed " + dude.getDisplayName() + "'s game mode to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + "!");
+            dude.sendMessage(namn + "Your game mode got toggled to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + " by: " + ChatColor.DARK_RED + player.getDisplayName());
+            log.info("[FastSwitch] " + player.getDisplayName() + " toggled " + dude.getDisplayName() + "'s game mode to Creative!");
+
+        } else {
+            dude.setGameMode(GameMode.SURVIVAL);
+            sender.sendMessage(namn + "You changed " + dude.getDisplayName() + "'s game mode  to " + ChatColor.GREEN + "Survival" + ChatColor.GRAY + "!");
+            dude.sendMessage(namn + "Your game mode got toggled to " + ChatColor.GREEN + "Survival" + ChatColor.GRAY + " by: " + ChatColor.DARK_RED + player.getDisplayName());
+            log.info("[FastSwitch] " + player.getDisplayName() + " toggled " + dude.getDisplayName() + "'s game mode to Survival!");
+        }
     }
+
     public void FastSwitch(CommandSender sender, String[] args) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("t") && (sender.isOp() || sender.hasPermission("fastswitch.toggle"))) {
                 toggle(sender);
+            } else if (!sender.isOp() && !sender.hasPermission("fastswitch.toggle")) {
+                NoPerms(sender);
             }
         }
-        if (args.length == 2 && (sender.isOp() || sender.hasPermission("fastswitch.toggle"))) {
+        if (args.length == 2 && (sender.isOp() || sender.hasPermission("fastswitch.toggle.other"))) {
             if (args[0].equalsIgnoreCase("t")) {
-                x = 1;
-                if(isOnline(sender, args))
-                toggleother(sender, args);
+                if (isOnline(sender, args)) {
+                    toggleother(sender, args);
+                }
             }
+        } else if (!sender.isOp() && !sender.hasPermission("fastswitch.toggle.other")) {
+            NoPerms(sender);
         }
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         x = 0;
+        dude = null;
+        found = false;
         if (!(sender instanceof Player)) {
             Console(sender, command, label, args);
             found = false;
         } else {
-            if (args.length > 1) {
+            if (args.length > 2) {
                 sender.sendMessage(namn + "Ahhrrgg! Can't handle the amount of arguments!");
             } else {
                 if (label.equalsIgnoreCase("survival")) {
