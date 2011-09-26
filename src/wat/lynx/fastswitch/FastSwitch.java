@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package wat.lynx.FastSwitch;
 
 import java.util.logging.Logger;
@@ -15,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
- * @author Emil
+ * @author Lynx
  */
 public class FastSwitch extends JavaPlugin {
 
