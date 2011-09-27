@@ -108,16 +108,22 @@ public class FastSwitch extends JavaPlugin {
     }
 
     public void Console(CommandSender sender, Command command, String label, String[] args) {
-        if(label.equalsIgnoreCase("fs") && !args[0].equalsIgnoreCase("t") && !args[0].equalsIgnoreCase("toggle") && !args[0].equalsIgnoreCase("t"))
+        if (label.equalsIgnoreCase("fs") && args.length != 0) {
+            if (label.equalsIgnoreCase("fs") && !args[0].equalsIgnoreCase("t") && !args[0].equalsIgnoreCase("toggle") && !args[0].equalsIgnoreCase("t") && !args[0].equalsIgnoreCase("h") && !args[0].equalsIgnoreCase("help")) {
+                log.info("[FastSwitch] Unknown Command!");
+            }
+        }
         if (args.length > 2) {
             log.info("[FastSwitch] Too many arguments!");
         }
         if (args.length < 1) {
-            log.info("[FastSwitch] Too few arguments!");
+            sendCHelp();
         }
-        if (label.equalsIgnoreCase("fs") && args.length == 0) {
-            log.info("[FastSwitch] Too few arguments!");
-        } else if (label.equalsIgnoreCase("fs") && args.length > 0 &&(args[0].equalsIgnoreCase("t") || args[0].equalsIgnoreCase("toggle"))) {
+        if (args.length > 0 && label.equalsIgnoreCase("fs") && (args[0].equalsIgnoreCase("h") || args[0].equalsIgnoreCase("help"))) {
+            sendCHelp();
+        }
+        
+        if (label.equalsIgnoreCase("fs") && args.length > 0 && (args[0].equalsIgnoreCase("t") || args[0].equalsIgnoreCase("toggle"))) {
             if (args.length == 2) {
                 if (isOnline(sender, args)) {
                     Consoletoggle(sender, args);
@@ -180,6 +186,20 @@ public class FastSwitch extends JavaPlugin {
         }
     }
 
+    public void sendCHelp() {
+        String name = "[FastSwitch] ";
+        log.info("[FastSwitch] Help Page");
+        log.info(name + "FastSwitch Commands:");
+        log.info(name + "/creative - Change to Creative mode");
+        log.info(name + "/survival - Change to Survival mode");
+        log.info(name + "/creative <name> - Creative mode for <name>");
+        log.info(name + "/survival <name> - Survival mode for <name>");
+        log.info(name + "/fs (t/toggle) - Toggles between the two modes");
+        log.info(name + "/fs (t/toggle) <name> - Toggle a player's mode");
+        log.info(name + "/fs (h/help) - Displays the Help Page");
+        log.info(name + "/fs - Lists all commands");
+    }
+
     public void sendHelp(CommandSender sender) {
         sender.sendMessage(namn + "FastSwitch Commands:");
         sender.sendMessage(namn + ChatColor.AQUA + "/creative " + ChatColor.RED + "-" + ChatColor.GRAY + " Change to Creative mode");
@@ -193,7 +213,7 @@ public class FastSwitch extends JavaPlugin {
     }
 
     public void FastSwitch(CommandSender sender, String[] args) {
-        if (args.length == 0) {
+        if (args.length == 0 && (sender.isOp() || sender.hasPermission("fastswitch.help"))) {
             sendHelp(sender);
         }
         if (args.length == 1) {
