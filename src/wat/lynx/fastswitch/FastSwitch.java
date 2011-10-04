@@ -12,8 +12,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class FastSwitch extends JavaPlugin {
 
-
-
+    public int y;
+    public Player playa;
+    public Player checkname;
+    public String matchednames = "";
+    public int amt = 0;
+    public String amtp;
     public int x;
     public String oplayer;
     public String namn = ChatColor.GOLD + "[" + ChatColor.DARK_GREEN + "FastSwitch" + ChatColor.GOLD + "]" + ChatColor.GRAY + " ";
@@ -29,26 +33,99 @@ public class FastSwitch extends JavaPlugin {
     public void onEnable() {
         log.info("[FastSwitch] Enabled!");
     }
+
+    public boolean hasPerms(Player player, String perm) {
+        String perms;
+        if(!player.isOp()){
+        if (!player.hasPermission("fastswitch.*")) {
+            if ("fastswitch.creative".equals(perm)) {
+                perms = perm;
+                if (player.hasPermission(perms) || player.hasPermission("fastswitch.change")) {
+                    return true;
+                } else {
+                    NoPerms(player);
+                    return false;
+                }
+            }
+            if ("fastswitch.survival".equals(perm)) {
+                perms = perm;
+                if (player.hasPermission(perms) || player.hasPermission("fastswitch.change")) {
+                    return true;
+                } else {
+                    NoPerms(player);
+                    return false;
+                }
+            }
+            if ("fastswitch.creative.other".equals(perm)) {
+                perms = perm;
+                if (player.hasPermission(perms) || player.hasPermission("fastswitch.change.other.*")) {
+                    return true;
+                } else {
+                    NoPerms(player);
+                    return false;
+                }
+            }
+            if ("fastswitch.survival.other".equals(perm)) {
+                perms = perm;
+                if (player.hasPermission(perms) || player.hasPermission("fastswitch.change.other.*")) {
+                    return true;
+                } else {
+                    NoPerms(player);
+                    return false;
+                }
+            }
+            if ("fastswitch.toggle".equals(perm)) {
+                perms = perm;
+                if (player.hasPermission(perms) || player.hasPermission("fastswitch.toggle.*")) {
+                    return true;
+                } else {
+                    NoPerms(player);
+                    return false;
+                }
+            }
+            if ("fastswitch.toggle.other".equals(perm)) {
+                perms = perm;
+                if (player.hasPermission(perms) || player.hasPermission("fastswitch.toggle.*")) {
+                    return true;
+                } else {
+                    NoPerms(player);
+                    return false;
+                }
+            }
+            if ("fastswitch.help".equals(perm)) {
+                perms = perm;
+                if (player.hasPermission(perms)) {
+                    return true;
+                } else {
+                    NoPerms(player);
+                    return false;
+                }
+            }
+            NoPerms(player);
+            return false;
+
+        } else 
+            return true;
+        } else
+            return true;
+    }
+
     public void Creative(CommandSender sender, String[] args) {
         Player player = (Player) sender;
         if (args.length < 1) {
-            if (player.isOp() || player.hasPermission("fastswitch.creative") || player.hasPermission("fastswitch.*")) {
+            if (hasPerms(player, "fastswitch.creative")) {
                 player.setGameMode(GameMode.CREATIVE);
                 sender.sendMessage(namn + "You changed your game mode to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + "!");
                 log.info("[FastSwitch] " + player.getDisplayName() + " changed game mode to Creative!");
-            } else {
-                NoPerms(sender);
             }
         } else if (args.length == 1) {
-            if (player.isOp() || player.hasPermission("fastswitch.creative.other") || player.hasPermission("fastswitch.*")) {
+            if (hasPerms(player, "fastswitch.creative.other")) {
                 if (isOnline(sender, args)) {
                     dude.setGameMode(GameMode.CREATIVE);
                     sender.sendMessage(namn + "You changed " + ChatColor.DARK_RED + dude.getDisplayName() + ChatColor.GRAY + "'s game mode to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + "!");
                     dude.sendMessage(namn + ChatColor.DARK_RED + player.getDisplayName() + ChatColor.GRAY + " changed your game mode to " + ChatColor.GREEN + "Creative" + ChatColor.GRAY + "!");
                     log.info("[FastSwitch] " + player.getDisplayName() + " changed " + dude.getDisplayName() + "'s game mode to Creative!");
                 }
-            } else {
-                NoPerms(sender);
             }
         }
     }
@@ -56,49 +133,62 @@ public class FastSwitch extends JavaPlugin {
     public boolean isOnline(CommandSender sender, String[] args) {
         Player list[] = sender.getServer().getOnlinePlayers();
         found = false;
+        matchednames = "";
+        checkname = null;
+        amt = 0;
         if ("t".equals(args[0]) || "toggle".equals(args[0])) {
             x = 1;
         } else {
             x = 0;
         }
         for (Player checkname : list) {
-            if (checkname.getDisplayName().equalsIgnoreCase(args[x])) {
-                dude = checkname;
-                found = true;
+            if (checkname.getDisplayName().toLowerCase().contains(args[x].toLowerCase())) {
+                amt++;
+                playa = checkname;
+                matchednames += ChatColor.DARK_RED + checkname.getDisplayName() + ChatColor.GRAY + ", ";
             }
+        }
+        if (amt == 1) {
+            dude = playa;
+            found = true;
         }
         if (found) {
             return true;
-        } else {
+        } else if (!found && amt == 0) {
             sender.sendMessage(namn + "Unable to find player " + ChatColor.DARK_RED + args[x] + ChatColor.GRAY + "!");
             return false;
+        } else if (!found && amt > 1) {
+            sender.sendMessage(namn + "Too many names matched!");
+            sender.sendMessage(namn + "String entered: " + ChatColor.DARK_RED + args[x]);
+            sender.sendMessage(namn + "Names matched: " + matchednames);
+            return false;
         }
+        return false;
     }
 
     public void NoPerms(CommandSender sender) {
-        sender.sendMessage(namn + ChatColor.RED + "You don't have permissions to do that!");
+        y++;
+        if (y == 1) {
+            sender.sendMessage(namn + ChatColor.RED + "You don't have permissions to do that!");
+        }
     }
 
     public void Survival(CommandSender sender, String[] args) {
         Player player = (Player) sender;
         if (args.length < 1) {
-            if (player.isOp() || player.hasPermission("fastswitch.survival") || player.hasPermission("fastswitch.*")) {
+            if (hasPerms(player, "fastswitch.survival")) {
                 player.setGameMode(GameMode.SURVIVAL);
                 sender.sendMessage(namn + "You changed your game mode to " + ChatColor.GREEN + "Survival" + ChatColor.GRAY + "!");
                 log.info("[FastSwitch] " + player.getDisplayName() + " changed game mode to Survival!");
-            } else {
-                NoPerms(sender);
             }
         } else if (args.length == 1) {
-            if (player.isOp() || player.hasPermission("fastswitch.survival.other") || player.hasPermission("fastswitch.*")) {
+            if (hasPerms(player, "fastswitch.survival.other")) {
                 if (isOnline(sender, args)) {
                     dude.setGameMode(GameMode.SURVIVAL);
                     sender.sendMessage(namn + "You changed " + ChatColor.DARK_RED + dude.getDisplayName() + ChatColor.GRAY + "'s game mode to " + ChatColor.GREEN + "Survival" + ChatColor.GRAY + "!");
                     dude.sendMessage(namn + ChatColor.DARK_RED + player.getDisplayName() + ChatColor.GRAY + " changed your game mode to " + ChatColor.GREEN + "Survival" + ChatColor.GRAY + "!");
                     log.info("[FastSwitch] " + player.getDisplayName() + " changed " + dude.getDisplayName() + "'s game mode to Survival!");
                 }
-            } else {
-                NoPerms(sender);
             }
         }
     }
@@ -208,29 +298,24 @@ public class FastSwitch extends JavaPlugin {
     }
 
     public void FastSwitch(CommandSender sender, String[] args) {
-        if (args.length == 0 && (sender.isOp() || sender.hasPermission("fastswitch.help") || sender.hasPermission("fastswitch.*"))) {
+        Player player = (Player) sender;
+        if (args.length == 0 && hasPerms(player, "fastswitch.help")) {
             sendHelp(sender);
         }
         if (args.length == 1) {
-            if ((args[0].equalsIgnoreCase("t") || args[0].equalsIgnoreCase("toggle")) && (sender.isOp() || sender.hasPermission("fastswitch.toggle") || sender.hasPermission("fastswitch.*"))) {
+            if ((args[0].equalsIgnoreCase("t") || args[0].equalsIgnoreCase("toggle")) && hasPerms(player, "fastswitch.toggle")) {
                 toggle(sender);
-            } else if ((args[0].equalsIgnoreCase("t") || args[0].equalsIgnoreCase("toggle")) && !sender.hasPermission("fastswitch.toggle") && !sender.isOp()) {
-                NoPerms(sender);
             }
-            if ((args[0].equalsIgnoreCase("h") || args[0].equalsIgnoreCase("help")) && (sender.isOp() || sender.hasPermission("fastswitch.help") || sender.hasPermission("fastswitch.*"))) {
+            if ((args[0].equalsIgnoreCase("h") || args[0].equalsIgnoreCase("help")) && hasPerms(player, "fastswitch.help")) {
                 sendHelp(sender);
-            } else if ((args[0].equalsIgnoreCase("h") || args[0].equalsIgnoreCase("help")) && (!sender.isOp() && !sender.hasPermission("fastswitch.help"))) {
-                NoPerms(sender);
             }
         }
-        if (args.length == 2 && (sender.isOp() || sender.hasPermission("fastswitch.toggle.other") || sender.hasPermission("fastswitch.*"))) {
+        if (args.length == 2 && hasPerms(player, "fastswitch.toggle.other")) {
             if (args[0].equalsIgnoreCase("t")) {
                 if (isOnline(sender, args)) {
                     toggleother(sender, args);
                 }
             }
-        } else if (!sender.isOp() && !sender.hasPermission("fastswitch.toggle.other") && !sender.hasPermission("fastswitch.*")) {
-            NoPerms(sender);
         }
     }
 
@@ -248,6 +333,7 @@ public class FastSwitch extends JavaPlugin {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        y = 0;
         x = 0;
         dude = null;
         found = false;
